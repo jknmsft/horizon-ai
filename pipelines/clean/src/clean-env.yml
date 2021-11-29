@@ -1,0 +1,13 @@
+name: clean-env
+channels:
+    - conda-forge
+    - defaults
+dependencies:
+    - python=3.8
+    - numpy
+    - pandas
+    - holidays
+    - scikit-learn
+    - pip
+    - pip:
+        - azureml-sdk

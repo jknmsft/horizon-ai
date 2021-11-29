@@ -1,0 +1,43 @@
+{
+    "EXPERIMENT_NAME":"cnn",
+	
+	"DEFAULT_PARAMS":{
+		"epochs" : 100,
+		"forecast_horizon": 24
+	},
+	"RNN_PARAMS" : {
+		"num_stack_layers": [1, 2, 3],
+		"units": [32, 64, 128],
+		"dropout": [0],
+		"--encoder-dim-1":5,
+        "--encoder-dim-2":0,
+        "--decoder-dim-1":5,
+        "--decoder-dim-2":0,
+        "--batch-size":32,
+        "--T":72,
+        "--learning-rate":0.01,
+        "--alpha":0
+	},
+    "SCRIPT_PARAMS":{
+        "--latent-dim-1": 5,
+        "--latent-dim-2": 5,
+        "--kernel-size":3,
+        "--batch-size": 32,
+        "--T": 72,
+        "--learning-rate": 0.01,
+        "--alpha": 0
+    },
+	"HYPER_PARAMS":{
+        "--latent-dim-1": [5,10,15],
+        "--latent-dim-2": [0,5,10],
+        "--kernel-size": 3,
+        "--batch-size": [16,32],
+        "--T": [72, 168, 336],
+        "--learning-rate": [0.01, 0.001, 0.0001],
+        "--alpha": [0.1,0.001,0]
+    },
+	"CATEGORIAL_COLS":["precipType", "icon", "summary"],
+	
+	
+    "MODEL_NAME":"cnn-best"
+}
