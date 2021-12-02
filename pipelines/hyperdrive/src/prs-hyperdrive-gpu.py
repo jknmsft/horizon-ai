@@ -1,4 +1,4 @@
-+import os
+import os
 import json
 import argparse
 import pandas as pd
@@ -87,9 +87,9 @@ def run(mini_batch):
     # Create the training environment
     # NOTE: We can register the environment in Workspace
     try:
-        train_env = Environment(name="train-env").from_conda_specification(
-                                                    name='train-env',
-                                                    file_path=os.path.join(snapshot_dir, 'train-env.yml')) 
+        train_gpu_env = Environment(name="train-gpu-env").from_conda_specification(
+                                                    name='train-gpu-env',
+                                                    file_path=os.path.join(snapshot_dir, 'train-gpu-env.yml')) 
     except BaseException as bex:
         print('Failed to create environment')
         raise bex
@@ -125,11 +125,10 @@ def run(mini_batch):
         # Get the filename from the csv_file_path
         file_name = os.path.basename(csv_file_path)
         base_name = file_name[:-4]
-        # logger.info(f'(idx, csv_file_path): {idx, csv_file_path}')
-        # logger.info(f'file_name: {file_name}')
 
         try:
-            cluster_name = f'hd-cluster-{idx + 1}'
+            # cluster_name = f'hd-cluster-{idx + 1}'
+            cluster_name = f'hd{idx + 1}-K80-gpu-ci'
             compute_target = ws.compute_targets[cluster_name]
         except BaseException as bex:
             print('Cannot find compute target')
@@ -138,10 +137,10 @@ def run(mini_batch):
         try:
             # Create the run configuration
             hd_src = ScriptRunConfig(source_directory=os.path.join(snapshot_dir),
-                      script='train.py',
+                      script='train-gpu.py',
                       arguments=['--data', input_dataset.as_mount(path_on_compute='/tmp/clean_fds/'), '--csv-file', file_name, '--epochs', 20],
                       compute_target=compute_target,
-                      environment=train_env)
+                      environment=train_gpu_env)
         
             # Create the hyperdrive run configuration
             hyperdrive_config = HyperDriveConfig(run_config=hd_src,
@@ -157,30 +156,6 @@ def run(mini_batch):
             
             # Tag the child run
             hd_run.set_tags(tags={'File': file_name})
-
-            # Wait for the run to finish
-            # hd_run.wait_for_completion()
-
-            # Stop the clock
-            # end_datetime = datetime.now()
-
-            # Find the best run
-            # best_run = hd_run.get_best_run_by_primary_metric()
-
-            # Select the tags from the HyperDrive run
-            # model_tag = {k: best_run.get_tags()[k] for k in ['model', 'lclid', 'id']}
-
-            # Register the best model with tags
-            # try:
-            #     best_run.register_model(
-            #             model_name=f'TK-CNN-{model_tag["lclid"]}', 
-            #             model_path='models/', 
-            #             model_framework=Model.Framework.TENSORFLOW, 
-            #             model_framework_version='2.6', 
-            #             tags=model_tag)
-            # except BaseException as bex:
-            #     print('Failed to register model')
-            #     raise bex
 
             # Store results
             # duration = end_datetime - start_datetime
@@ -198,8 +173,5 @@ def run(mini_batch):
                 hd_run.parent.fail()
                 
             raise bex            
-
-    # Wait for the child run to complete
-    # current_run.wait_for_completion()
 
     return pd.DataFrame(result_list)

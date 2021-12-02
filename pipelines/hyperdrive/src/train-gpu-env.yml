@@ -1,0 +1,15 @@
+name: train-gpu-env
+channels:
+    - conda-forge
+    - defaults
+dependencies:
+    - python=3.8
+    - numpy
+    - pandas
+    - holidays
+    - matplotlib
+    - scikit-learn
+    - pip
+    - pip:
+        - azureml-sdk
+        - tensorflow-gpu
